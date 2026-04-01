@@ -7,6 +7,7 @@ resources:
 - 02-migration-job.yaml
 - 03-erthiscan-core.yaml
 - 04-service.yaml
+- 04a-backend-tls-policy.yaml
 - 05-gateway.yaml
 - 06-httproute.yaml
 - 07-open-facts-import-cronjob.yaml

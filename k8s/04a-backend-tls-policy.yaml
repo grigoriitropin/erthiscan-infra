@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1alpha3
+kind: BackendTLSPolicy
+metadata:
+  name: erthiscan-core-tls
+  namespace: erthiscan
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: erthiscan-core
+  validation:
+    caCertificateRefs:
+      - group: ""
+        kind: Secret
+        name: erthiscan-internal-ca
+    hostname: erthiscan-core.erthiscan.svc.cluster.local
