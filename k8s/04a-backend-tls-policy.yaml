@@ -11,6 +11,6 @@ spec:
   validation:
     caCertificateRefs:
       - group: ""
-        kind: Secret
+        kind: ConfigMap
         name: erthiscan-internal-ca
     hostname: erthiscan-core.erthiscan.svc.cluster.local
