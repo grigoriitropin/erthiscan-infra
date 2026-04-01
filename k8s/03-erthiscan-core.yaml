@@ -19,7 +19,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: erthiscan-core
-          image: ghcr.io/grigoriitropin/erthiscan-core:latest
+          image: ghcr.io/grigoriitropin/erthiscan-core
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
