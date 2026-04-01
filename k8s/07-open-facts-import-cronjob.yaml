@@ -4,12 +4,13 @@ metadata:
   name: erthiscan-open-facts-import
   namespace: erthiscan
 spec:
-  schedule: "0 3 * * *"
+  schedule: "0 4 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 3600
       backoffLimit: 1
       ttlSecondsAfterFinished: 300
       template:
@@ -23,6 +24,13 @@ spec:
             - name: import-open-facts
               image: ghcr.io/grigoriitropin/erthiscan-core
               command: ["python", "-m", "app.collector.open_facts_dump"]
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:

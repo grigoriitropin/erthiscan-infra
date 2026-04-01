@@ -4,6 +4,7 @@ metadata:
   name: erthiscan-core-migrate
   namespace: erthiscan
 spec:
+  activeDeadlineSeconds: 300
   backoffLimit: 3
   ttlSecondsAfterFinished: 300
   template:
@@ -17,6 +18,13 @@ spec:
         - name: migrate
           image: ghcr.io/grigoriitropin/erthiscan-core
           command: ["alembic", "upgrade", "head"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
