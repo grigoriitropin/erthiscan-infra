@@ -67,6 +67,16 @@ spec:
               value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
             - name: DB_READ_URL
               value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
+            - name: GOOGLE_WEB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: erthiscan-auth
+                  key: google-web-client-id
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: erthiscan-auth
+                  key: jwt-secret
           volumeMounts:
             - name: tls-certs
               mountPath: /certs
