@@ -2,11 +2,15 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - 00-erthiscan-namespace.yaml
-  - 01-postgres-cluster.yaml
-  - 02-migration-job.yaml
-  - 03-erthiscan-core.yaml
-  - 04-service.yaml
-  - 05-gateway.yaml
-  - 06-httproute.yaml
-  - 07-open-facts-import-cronjob.yaml
+- 00-erthiscan-namespace.yaml
+- 01-postgres-cluster.yaml
+- 02-migration-job.yaml
+- 03-erthiscan-core.yaml
+- 04-service.yaml
+- 05-gateway.yaml
+- 06-httproute.yaml
+- 07-open-facts-import-cronjob.yaml
+images:
+- name: ghcr.io/grigoriitropin/erthiscan-core
+  newName: ghcr.io/grigoriitropin/erthiscan-core
+  newTag: e3ad73357406ee6b80bdc6a96380e08d3949037b
