@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: erthiscan-worker
+  namespace: erthiscan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: erthiscan-worker
+  template:
+    metadata:
+      labels:
+        app: erthiscan-worker
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: ghcr.io/grigoriitropin/erthiscan-core
+          command: ["python", "-m", "app.worker"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-cluster-app
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-cluster-app
+                  key: password
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-cluster-app
+                  key: dbname
+            - name: DB_WRITE_URL
+              value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
+            - name: DB_READ_URL
+              value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
+            - name: REDIS_URL
+              value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
+            - name: KAFKA_BOOTSTRAP
+              value: "kafka.erthiscan.svc.cluster.local:9092"

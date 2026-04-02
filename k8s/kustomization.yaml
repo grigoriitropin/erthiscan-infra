@@ -13,6 +13,8 @@ resources:
 - 07-open-facts-import-cronjob.yaml
 - 08-postgres-scheduled-backup.yaml
 - 09-redis.yaml
+- 10-kafka.yaml
+- 11-worker.yaml
 images:
 - name: ghcr.io/grigoriitropin/erthiscan-core
   newName: ghcr.io/grigoriitropin/erthiscan-core
