@@ -22,6 +22,6 @@ spec:
         secretAccessKey:
           name: r2-backup-creds
           key: ACCESS_SECRET_KEY
-      wal:
+      data:
         compression: gzip
-    retentionPolicy: "30d"
+    retentionPolicy: "7d"
