@@ -12,6 +12,7 @@ resources:
 - 06-httproute.yaml
 - 07-open-facts-import-cronjob.yaml
 - 08-postgres-scheduled-backup.yaml
+- 09-redis.yaml
 images:
 - name: ghcr.io/grigoriitropin/erthiscan-core
   newName: ghcr.io/grigoriitropin/erthiscan-core

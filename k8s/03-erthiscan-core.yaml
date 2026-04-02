@@ -77,6 +77,8 @@ spec:
                 secretKeyRef:
                   name: erthiscan-auth
                   key: jwt-secret
+            - name: REDIS_URL
+              value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
           volumeMounts:
             - name: tls-certs
               mountPath: /certs
