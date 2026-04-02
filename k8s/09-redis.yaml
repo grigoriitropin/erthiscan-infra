@@ -22,6 +22,8 @@ spec:
           image: redis:8.6-alpine
           args: ["--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
           securityContext:
+            runAsUser: 999
+            runAsGroup: 999
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
