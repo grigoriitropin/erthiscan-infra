@@ -44,6 +44,10 @@ spec:
               value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
             - name: KAFKA_CONTROLLER_QUORUM_VOTERS
               value: "1@localhost:9093"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_DEFAULT_REPLICATION_FACTOR
+              value: "1"
             - name: KAFKA_LOG_RETENTION_HOURS
               value: "24"
             - name: KAFKA_LOG_RETENTION_BYTES
