@@ -18,4 +18,4 @@ resources:
 images:
 - name: ghcr.io/grigoriitropin/erthiscan-core
   newName: ghcr.io/grigoriitropin/erthiscan-core
-  newTag: 739f7f507b12916cce6794dba821b8b27b5cb7e8
+  newTag: 9ea63d4848aaa29cde833d1fab89bc7ef01353e5
