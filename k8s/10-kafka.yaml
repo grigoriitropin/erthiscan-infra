@@ -13,6 +13,8 @@ spec:
       labels:
         app: kafka
     spec:
+      nodeSelector:
+        workload: heavy
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -59,10 +61,10 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 512Mi
+              memory: 1024Mi
             limits:
               cpu: 500m
-              memory: 768Mi
+              memory: 1200Mi
           readinessProbe:
             tcpSocket:
               port: 9092

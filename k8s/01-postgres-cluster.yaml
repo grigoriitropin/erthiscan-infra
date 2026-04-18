@@ -18,11 +18,14 @@ spec:
 
   resources:
     requests:
-      memory: "1800Mi"
+      memory: "2560Mi"
       cpu: "500m"
     limits:
-      memory: "1800Mi"
+      memory: "2560Mi"
       cpu: "1500m"
+
+  nodeSelector:
+    workload: heavy
 
   # backup:
   #   barmanObjectStore:
