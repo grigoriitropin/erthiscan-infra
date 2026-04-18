@@ -26,3 +26,9 @@ patches:
           limits:
             cpu: 500m
             memory: 256Mi
+  - target:
+      labelSelector: "app.kubernetes.io/part-of=argocd"
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: argocd
