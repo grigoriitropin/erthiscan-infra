@@ -26,11 +26,11 @@ spec:
               command: ["python", "-m", "app.collector.open_facts_dump"]
               resources:
                 requests:
-                  cpu: 100m
-                  memory: 256Mi
+                  cpu: 200m
+                  memory: 384Mi
                 limits:
-                  cpu: 500m
-                  memory: 1Gi
+                  cpu: 1000m
+                  memory: 512Mi
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:

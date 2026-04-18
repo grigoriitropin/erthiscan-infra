@@ -11,6 +11,19 @@ spec:
     storageClass: longhorn-single-replica
     size: 15Gi
 
+  postgresql:
+    parameters:
+      wal_compression: "zstd"
+      max_wal_size: "2GB"
+
+  resources:
+    requests:
+      memory: "1800Mi"
+      cpu: "500m"
+    limits:
+      memory: "1800Mi"
+      cpu: "1500m"
+
   # backup:
   #   barmanObjectStore:
   #     destinationPath: s3://erthiscan-db-backup/
