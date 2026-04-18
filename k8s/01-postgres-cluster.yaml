@@ -11,17 +11,17 @@ spec:
     storageClass: longhorn-single-replica
     size: 15Gi
 
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://erthiscan-db-backup/
-      endpointURL: https://a8fad8dd5401ceaa4106146b65e69178.r2.cloudflarestorage.com
-      s3Credentials:
-        accessKeyId:
-          name: r2-backup-creds
-          key: ACCESS_KEY_ID
-        secretAccessKey:
-          name: r2-backup-creds
-          key: ACCESS_SECRET_KEY
-      data:
-        compression: gzip
-    retentionPolicy: "3d"
+  # backup:
+  #   barmanObjectStore:
+  #     destinationPath: s3://erthiscan-db-backup/
+  #     endpointURL: https://a8fad8dd5401ceaa4106146b65e69178.r2.cloudflarestorage.com
+  #     s3Credentials:
+  #       accessKeyId:
+  #         name: r2-backup-creds
+  #         key: ACCESS_KEY_ID
+  #       secretAccessKey:
+  #         name: r2-backup-creds
+  #         key: ACCESS_SECRET_KEY
+  #     data:
+  #       compression: gzip
+  #   retentionPolicy: "3d"

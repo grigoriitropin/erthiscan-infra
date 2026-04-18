@@ -11,7 +11,7 @@ resources:
 - 05-gateway.yaml
 - 06-httproute.yaml
 - 07-open-facts-import-cronjob.yaml
-- 08-postgres-scheduled-backup.yaml
+# - 08-postgres-scheduled-backup.yaml
 - 09-redis.yaml
 - 10-kafka.yaml
 - 11-worker.yaml
