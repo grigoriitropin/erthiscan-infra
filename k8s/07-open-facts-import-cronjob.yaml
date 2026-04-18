@@ -11,7 +11,7 @@ spec:
   jobTemplate:
     spec:
       activeDeadlineSeconds: 3600
-      backoffLimit: 1
+      backoffLimit: 2
       ttlSecondsAfterFinished: 300
       template:
         spec:
@@ -28,11 +28,11 @@ spec:
               command: ["python", "-m", "app.collector.open_facts_dump"]
               resources:
                 requests:
-                  cpu: 200m
-                  memory: 384Mi
+                  cpu: 500m
+                  memory: 1Gi
                 limits:
-                  cpu: 1000m
-                  memory: 512Mi
+                  cpu: 1500m
+                  memory: 2Gi
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
