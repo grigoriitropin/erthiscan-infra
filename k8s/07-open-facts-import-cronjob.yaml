@@ -3,6 +3,8 @@ kind: CronJob
 metadata:
   name: erthiscan-open-facts-import
   namespace: erthiscan
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   schedule: "0 4 * * *"
   concurrencyPolicy: Forbid

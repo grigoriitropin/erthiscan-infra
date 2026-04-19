@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: redis
   namespace: erthiscan
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
   selector:
@@ -54,6 +56,8 @@ kind: Service
 metadata:
   name: redis
   namespace: erthiscan
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   selector:
     app: redis
