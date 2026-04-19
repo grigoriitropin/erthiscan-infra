@@ -15,8 +15,6 @@ spec:
       labels:
         app: erthiscan-core
     spec:
-      nodeSelector:
-        workload: heavy
       securityContext:
         runAsNonRoot: true
         seccompProfile:

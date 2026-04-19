@@ -17,8 +17,6 @@ spec:
       ttlSecondsAfterFinished: 300
       template:
         spec:
-          nodeSelector:
-            workload: heavy
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true
