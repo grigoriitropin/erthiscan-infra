@@ -13,6 +13,7 @@ spec:
     targetRevision: 39.0.8
     helm:
       releaseName: traefik
+      skipCrds: true
       valuesObject:
         fullnameOverride: traefik
         resources:
