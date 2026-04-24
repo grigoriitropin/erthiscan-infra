@@ -15,4 +15,8 @@ spec:
       interval: 15s
       scheme: HTTPS
       tlsConfig:
-        insecureSkipVerify: true
+        ca:
+          configMap:
+            name: erthiscan-internal-ca
+            key: ca.crt
+        serverName: erthiscan-core.erthiscan.svc.cluster.local
