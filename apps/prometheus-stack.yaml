@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: HEAD
+    chart: kube-prometheus-stack
+    helm:
+      values: |
+        grafana:
+          enabled: true
+          adminPassword: admin
+          service:
+            type: ClusterIP
+            port: 3000
+          persistence:
+            enabled: true
+            size: 5Gi
+            storageClassName: longhorn
+          datasources:
+            datasources.yaml:
+              apiVersion: 1
+              datasources:
+                - name: Prometheus
+                  type: prometheus
+                  url: http://prometheus-operated.monitoring:9090
+                  access: proxy
+                  isDefault: true
+
+        prometheus:
+          prometheusSpec:
+            retention: 14d
+            retentionSize: 20GB
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: longhorn
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 20Gi
+            podMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorNamespaceSelector: {}
+            serviceMonitorNamespaceSelector: {}
+
+        alertmanager:
+          enabled: true
+          persistence:
+            enabled: true
+            storageClassName: longhorn
+            size: 2Gi
+
+        defaultRules:
+          create: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 3
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true

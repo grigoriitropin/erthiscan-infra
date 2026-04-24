@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: erthiscan-core
+  namespace: erthiscan
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  selector:
+    matchLabels:
+      app: erthiscan-core
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scheme: HTTPS
+      tlsConfig:
+        insecureSkipVerify: true

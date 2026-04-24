@@ -9,6 +9,7 @@ spec:
   selector:
     app: erthiscan-core
   ports:
-    - port: 443
+    - name: https
+      port: 443
       targetPort: 8000
       protocol: TCP

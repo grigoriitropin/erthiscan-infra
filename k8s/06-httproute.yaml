@@ -17,7 +17,22 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /auth/
+        - path:
+            type: PathPrefix
+            value: /scan/
+        - path:
+            type: PathPrefix
+            value: /companies/
+        - path:
+            type: PathPrefix
+            value: /reports/
+        - path:
+            type: Exact
+            value: /health
+        - path:
+            type: Exact
+            value: /db-health
       backendRefs:
         - name: erthiscan-core
           port: 443

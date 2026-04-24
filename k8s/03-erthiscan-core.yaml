@@ -14,6 +14,10 @@ spec:
     metadata:
       labels:
         app: erthiscan-core
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
@@ -27,7 +31,8 @@ spec:
             capabilities:
               drop: ["ALL"]
           ports:
-            - containerPort: 8000
+            - name: http
+              containerPort: 8000
           resources:
             requests:
               cpu: 100m
@@ -80,6 +85,8 @@ spec:
                   name: erthiscan-auth
                   key: jwt-secret
             - name: REDIS_URL
+              value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
+            - name: RATE_LIMITER_REDIS_URL
               value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
           volumeMounts:
             - name: tls-certs

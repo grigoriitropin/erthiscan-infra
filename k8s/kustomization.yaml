@@ -12,6 +12,7 @@ resources:
 - 05-gateway.yaml
 - 06-httproute.yaml
 - 07-open-facts-import-cronjob.yaml
+- 08-pod-monitor.yaml
 - 09-redis.yaml
 - 10-kafka.yaml
 - 11-worker.yaml
