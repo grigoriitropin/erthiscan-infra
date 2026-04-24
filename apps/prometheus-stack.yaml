@@ -31,8 +31,6 @@ spec:
                   type: prometheus
                   url: http://prometheus-operated.monitoring:9090
                   access: proxy
-                  isDefault: true
-
         prometheus:
           prometheusSpec:
             retention: 14d
