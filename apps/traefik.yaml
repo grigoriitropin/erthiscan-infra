@@ -23,9 +23,10 @@ spec:
       valuesObject:
         fullnameOverride: traefik
 
-        # Enable insecure API/Dashboard access on port 8080
-        additionalArguments:
-          - "--api.insecure=true"
+        # NATIVE API CONFIG: Recommended way to enable the dashboard and insecure access.
+        api:
+          dashboard: true
+          insecure: true
         
         # RESOURCE LIMITS: Ensures Traefik doesn't consume all node resources while 
         # guaranteeing enough CPU/RAM for high-traffic routing.
@@ -39,7 +40,6 @@ spec:
             
         ports:
           traefik:
-            port: 8080
             expose:
               default: true
           web:
