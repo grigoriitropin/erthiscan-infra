@@ -22,6 +22,10 @@ spec:
       skipCrds: true
       valuesObject:
         fullnameOverride: traefik
+
+        # Enable insecure API/Dashboard access on port 8080
+        additionalArguments:
+          - "--api.insecure=true"
         
         # RESOURCE LIMITS: Ensures Traefik doesn't consume all node resources while 
         # guaranteeing enough CPU/RAM for high-traffic routing.
