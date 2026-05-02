@@ -1,9 +1,12 @@
+# KAFKA: Message broker for asynchronous event-driven processing.
+# Used for communication between the Core API and background Workers.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kafka
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Deployed as part of the application infrastructure.
     argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
@@ -24,6 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: kafka
+          # Using Kafka 4.x which supports KRaft mode (no Zookeeper needed).
           image: apache/kafka:4.2.0
           securityContext:
             allowPrivilegeEscalation: false
@@ -32,32 +36,46 @@ spec:
           ports:
             - containerPort: 9092
           env:
+            # KRAFT CONFIGURATION: 
+            # Combined role (broker + controller) for a simplified single-node setup.
             - name: KAFKA_NODE_ID
               value: "1"
             - name: KAFKA_PROCESS_ROLES
               value: "broker,controller"
+            
+            # NETWORKING: 
+            # ADVERTISED_LISTENERS tells clients how to reach Kafka within the cluster.
             - name: KAFKA_LISTENERS
               value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
             - name: KAFKA_ADVERTISED_LISTENERS
               value: "PLAINTEXT://kafka.erthiscan.svc.cluster.local:9092"
+            
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
               value: "CONTROLLER"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
             - name: KAFKA_CONTROLLER_QUORUM_VOTERS
               value: "1@localhost:9093"
+            
+            # REPLICATION: Set to 1 because we only have a single Kafka pod.
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
               value: "1"
             - name: KAFKA_DEFAULT_REPLICATION_FACTOR
               value: "1"
+            
+            # RETENTION: Keep messages for 24 hours or until they reach 512MB.
             - name: KAFKA_LOG_RETENTION_HOURS
               value: "24"
             - name: KAFKA_LOG_RETENTION_BYTES
               value: "536870912"
+            
             - name: CLUSTER_ID
               value: "erthiscan-kafka-cluster-001"
+            
+            # JAVA HEAP: Allocated 512MB for the JVM, staying within the 1024MB container request.
             - name: KAFKA_HEAP_OPTS
               value: "-Xmx512m -Xms256m"
+              
           resources:
             requests:
               cpu: 100m
@@ -65,6 +83,8 @@ spec:
             limits:
               cpu: 500m
               memory: 1200Mi
+          
+          # LIVENESS/READINESS: Simple TCP checks on the broker port.
           readinessProbe:
             tcpSocket:
               port: 9092
@@ -76,6 +96,7 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 30
 ---
+# KAFKA SERVICE: Stable internal endpoint for message producers and consumers.
 apiVersion: v1
 kind: Service
 metadata:

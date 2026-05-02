@@ -1,10 +1,16 @@
+# SCHEDULED BACKUPS: Tells the CNPG operator to perform periodic backups.
+# NOTE: This only defines the schedule. The actual backup destination (S3/R2) 
+# must be configured in '01-postgres-cluster.yaml' under 'spec.backup'.
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: postgres-daily-backup
   namespace: erthiscan
 spec:
+  # SCHEDULE: Runs every day at 03:00 AM.
   schedule: "0 0 3 * * *"
+  # backupOwnerReference: self ensures that the backup resources are managed by this schedule.
   backupOwnerReference: self
   cluster:
+    # Target cluster to backup.
     name: postgres-cluster

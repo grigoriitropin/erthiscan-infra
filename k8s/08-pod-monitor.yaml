@@ -1,22 +1,32 @@
+# POD MONITOR: Tells the Prometheus Operator how to scrape metrics from Erthiscan pods.
+# This ensures that our application metrics appear in Prometheus/Grafana.
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
   name: erthiscan-core
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 3: Should be created AFTER the pods (wave 2) are defined.
     argocd.argoproj.io/sync-wave: "3"
 spec:
+  # SELECTOR: Monitor all pods that have the 'app: erthiscan-core' label.
   selector:
     matchLabels:
       app: erthiscan-core
+  
   podMetricsEndpoints:
     - port: http
       path: /metrics
+      # SCRAPE INTERVAL: Fetch metrics every 15 seconds.
       interval: 15s
+      
+      # SECURE SCRAPING: Scrape metrics over HTTPS.
       scheme: HTTPS
       tlsConfig:
+        # Validate the pod's certificate using our internal CA.
         ca:
           configMap:
             name: erthiscan-internal-ca
             key: ca.crt
+        # Ensure the certificate hostname matches the internal DNS name.
         serverName: erthiscan-core.erthiscan.svc.cluster.local

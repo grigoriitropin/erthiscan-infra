@@ -1,3 +1,5 @@
+# POSTGRESQL CLUSTER: Managed by CloudNativePG (CNPG) Operator.
+# This manifest defines a declarative PostgreSQL instance with automated management.
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -5,18 +7,25 @@ metadata:
   namespace: erthiscan
 
 spec:
+  # INSTANCES: Current setup uses a single instance (no HA).
   instances: 1
+  
+  # IMAGE: PostgreSQL v18.3 - modern and high-performance.
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
+  
   storage:
+    # STORAGE CLASS: Uses our custom Longhorn class for single-replica volumes.
     storageClass: longhorn-single-replica
     size: 15Gi
 
   postgresql:
     parameters:
+      # PERFORMANCE TUNING: Enable zstd compression for WAL to save IO and space.
       wal_compression: "zstd"
       max_wal_size: "2GB"
 
   resources:
+    # RESOURCE ALLOCATION: Guaranteed memory to avoid OOM kills during heavy operations.
     requests:
       memory: "2560Mi"
       cpu: "500m"
@@ -24,6 +33,9 @@ spec:
       memory: "2560Mi"
       cpu: "1500m"
 
+  # BACKUP CONFIGURATION (Commented out): Template for S3/R2 backups.
+  # NOTE: barmanObjectStore is considered deprecated in newer CNPG versions; 
+  # refer to official docs for modern object store configuration.
   # backup:
   #   barmanObjectStore:
   #     destinationPath: s3://erthiscan-db-backup/

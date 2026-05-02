@@ -1,9 +1,11 @@
+# CORE API DEPLOYMENT: The main FastAPI backend of the Erthiscan project.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: erthiscan-core
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Starts AFTER infrastructure (0) and database migrations (1).
     argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
@@ -15,6 +17,7 @@ spec:
       labels:
         app: erthiscan-core
       annotations:
+        # MONITORING: Tells Prometheus to automatically scrape metrics from this pod.
         prometheus.io/scrape: "true"
         prometheus.io/port: "8000"
         prometheus.io/path: "/metrics"
@@ -40,6 +43,9 @@ spec:
             limits:
               cpu: 500m
               memory: 384Mi
+          
+          # READINESS PROBE: Determines if the pod is ready to serve traffic.
+          # Uses /db-health to ensure the database connection is established.
           readinessProbe:
             httpGet:
               path: /db-health
@@ -47,6 +53,9 @@ spec:
               scheme: HTTPS
             initialDelaySeconds: 5
             periodSeconds: 10
+          
+          # LIVENESS PROBE: Determines if the pod is alive. 
+          # If this fails, Kubernetes will restart the container.
           livenessProbe:
             httpGet:
               path: /health
@@ -54,7 +63,9 @@ spec:
               scheme: HTTPS
             initialDelaySeconds: 10
             periodSeconds: 30
+            
           env:
+            # DATABASE CREDENTIALS: From CNPG secret.
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -70,10 +81,14 @@ spec:
                 secretKeyRef:
                   name: postgres-cluster-app
                   key: dbname
+            
+            # DB URLS: Note the use of 'asyncpg' driver as required by the application's async stack.
             - name: DB_WRITE_URL
               value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
             - name: DB_READ_URL
               value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
+            
+            # AUTH & SECURITY: Credentials from a manually managed secret 'erthiscan-auth'.
             - name: GOOGLE_WEB_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -84,11 +99,15 @@ spec:
                 secretKeyRef:
                   name: erthiscan-auth
                   key: jwt-secret
+            
+            # EXTERNAL SERVICES: Local cluster service discovery for Redis.
             - name: REDIS_URL
               value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
             - name: RATE_LIMITER_REDIS_URL
               value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
+          
           volumeMounts:
+            # TLS CERTS: Mounted for internal HTTPS/mTLS communication.
             - name: tls-certs
               mountPath: /certs
               readOnly: true

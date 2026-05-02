@@ -1,9 +1,11 @@
+# REDIS: In-memory data store used for caching and rate limiting.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Deployed alongside the application backend.
     argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
@@ -21,8 +23,14 @@ spec:
           type: RuntimeDefault
       containers:
         - name: redis
+          # Using a lightweight Alpine-based image.
           image: redis:8.6-alpine
+          # MEMORY MANAGEMENT: 
+          # --maxmemory: Limits Redis memory usage to 128MB.
+          # --maxmemory-policy allkeys-lru: Tells Redis to delete the Least Recently Used (LRU) keys 
+          # when it reaches the memory limit, preventing OOM crashes.
           args: ["--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+          
           securityContext:
             runAsUser: 999
             runAsGroup: 999
@@ -37,7 +45,10 @@ spec:
               memory: 64Mi
             limits:
               cpu: 200m
+              # Limit is slightly higher than 'maxmemory' to account for Redis overhead.
               memory: 192Mi
+          
+          # HEALTH CHECKS: Uses the redis-cli tool to verify the service is responding.
           readinessProbe:
             exec:
               command: ["redis-cli", "ping"]
@@ -49,6 +60,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 30
 ---
+# REDIS SERVICE: Stable internal endpoint for the Redis deployment.
 apiVersion: v1
 kind: Service
 metadata:

@@ -1,20 +1,33 @@
+# DATA IMPORT CRONJOB: Periodically fetches and processes Open Facts data.
+# This ensures our local company database stays up-to-date with external sources.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: erthiscan-open-facts-import
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Managed as part of the core application stack.
     argocd.argoproj.io/sync-wave: "2"
 spec:
+  # SCHEDULE: Runs every day at 04:00 AM.
   schedule: "0 4 * * *"
+  
+  # CONCURRENCY: "Forbid" ensures that if a previous import job is still running, 
+  # a new one won't be started (avoids database/memory conflicts).
   concurrencyPolicy: Forbid
+  
+  # HISTORY: Keep only 1 successful and 3 failed logs to save space in the cluster.
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
+  
   jobTemplate:
     spec:
+      # TIMEOUT: Hard limit of 1 hour for the data import.
       activeDeadlineSeconds: 3600
       backoffLimit: 2
+      # CLEANUP: Automatically delete the finished pod after 5 minutes (300s).
       ttlSecondsAfterFinished: 300
+      
       template:
         spec:
           restartPolicy: Never
@@ -22,21 +35,28 @@ spec:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
+              
           containers:
             - name: import-open-facts
+              # Same application image, but runs a specific data collection module.
               image: ghcr.io/grigoriitropin/erthiscan-core
               command: ["python", "-m", "app.collector.open_facts_dump"]
+              
               resources:
+                # RESOURCES: Higher limits than API pods because data processing/dumping 
+                # can be memory-intensive.
                 requests:
                   cpu: 500m
                   memory: 1Gi
                 limits:
                   cpu: 1500m
                   memory: 2Gi
+                  
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
                   drop: ["ALL"]
+                  
               env:
                 - name: DB_USER
                   valueFrom:
@@ -53,5 +73,7 @@ spec:
                     secretKeyRef:
                       name: postgres-cluster-app
                       key: dbname
+                
+                # Using 'psycopg' (sync/threaded) driver for the import script.
                 - name: DB_WRITE_URL
                   value: "postgresql+psycopg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"

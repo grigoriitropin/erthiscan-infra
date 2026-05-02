@@ -1,18 +1,39 @@
+# Longhorn StorageClass configuration for single-node or cost-optimized storage.
+# This class is used for volumes that don't require high availability across nodes.
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: longhorn-single-replica
 provisioner: driver.longhorn.io
+
+# Allow PVCs to be resized after creation.
 allowVolumeExpansion: true
+
+# Delete the underlying Longhorn volume when the PVC is deleted.
 reclaimPolicy: Delete
+
+# Bind the volume immediately without waiting for a pod to be scheduled.
 volumeBindingMode: Immediate
+
 parameters:
+  # Set to "1" for non-critical data or single-node clusters to save space/IO.
   numberOfReplicas: "1"
+  
+  # How long to wait (in minutes) before cleaning up a stale replica.
   staleReplicaTimeout: "30"
+  
   fromBackup: ""
   fsType: "ext4"
+  
+  # dataLocality: "disabled" means replicas don't have to be on the same node as the pod.
   dataLocality: "disabled"
+  
   unmapMarkSnapChainRemoved: "ignored"
+  
+  # disableRevisionCounter: "true" improves performance by not tracking every write for revision.
   disableRevisionCounter: "true"
+  
+  # Standard Longhorn storage engine.
   dataEngine: "v1"
+  
   backupTargetName: "default"

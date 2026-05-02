@@ -1,15 +1,21 @@
+# BACKEND SERVICE: Provides a stable internal IP address (ClusterIP) for the 'erthiscan-core' pods.
+# Other components (like the Gateway or Workers) use this to talk to the API.
 apiVersion: v1
 kind: Service
 metadata:
   name: erthiscan-core
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Deployed alongside the core application deployment.
     argocd.argoproj.io/sync-wave: "2"
 spec:
   selector:
+    # Traffic is routed to any pod with this label.
     app: erthiscan-core
   ports:
     - name: https
+      # PORT 443: Standard HTTPS port for internal cluster traffic.
       port: 443
+      # TARGET PORT 8000: The port the FastAPI application is actually listening on.
       targetPort: 8000
       protocol: TCP

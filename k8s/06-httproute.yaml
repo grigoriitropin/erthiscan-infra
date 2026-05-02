@@ -1,38 +1,48 @@
+# HTTP ROUTE: Defines the actual routing rules for the Erthiscan API.
+# It maps specific URL paths to the backend service.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: erthiscan-core
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Deployed alongside the Gateway and Backend Service.
     argocd.argoproj.io/sync-wave: "2"
 spec:
+  # ATTACHMENT: Tells this route to attach itself to the 'erthiscan-gateway'.
   parentRefs:
     - name: erthiscan-gateway
       namespace: erthiscan
-      sectionName: web
+      sectionName: web       # Attach to the HTTP listener.
     - name: erthiscan-gateway
       namespace: erthiscan
-      sectionName: websecure
+      sectionName: websecure  # Attach to the HTTPS listener.
+  
   rules:
+    # ROUTING RULES: List of URL paths that should be directed to the backend.
     - matches:
         - path:
             type: PathPrefix
-            value: /auth/
+            value: /auth/      # User authentication endpoints.
         - path:
             type: PathPrefix
-            value: /scan/
+            value: /scan/      # Company scanning/scoring logic.
         - path:
             type: PathPrefix
-            value: /companies/
+            value: /companies/ # Company data and lookup.
         - path:
             type: PathPrefix
-            value: /reports/
+            value: /reports/   # Ethical reports and generated data.
         - path:
             type: Exact
-            value: /health
+            value: /health     # Liveness probe endpoint.
         - path:
             type: Exact
-            value: /db-health
+            value: /db-health  # Readiness probe endpoint.
+            
       backendRefs:
+        # DESTINATION: Send the traffic matching above paths to the 'erthiscan-core' Service.
         - name: erthiscan-core
+          # Note: We route to port 443 because the internal Service uses HTTPS.
           port: 443
+          # The BackendTLSPolicy (04a) ensures this connection is encrypted and verified.

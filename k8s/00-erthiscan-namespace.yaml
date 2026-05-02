@@ -1,3 +1,5 @@
+# Dedicated namespace for the Erthiscan application stack.
+# All application-related resources (API, Workers, DB, Cache) live here.
 apiVersion: v1
 kind: Namespace
 metadata:

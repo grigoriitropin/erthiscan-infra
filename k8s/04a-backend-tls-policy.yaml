@@ -1,18 +1,27 @@
+# BACKEND TLS POLICY: Part of Gateway API.
+# This resource tells the Gateway (Ingress) how to securely talk to the backend service over TLS.
+# It ensures "zero-trust" communication between the edge and the application.
 apiVersion: gateway.networking.k8s.io/v1
 kind: BackendTLSPolicy
 metadata:
   name: erthiscan-core-tls
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Applied alongside the backend Service.
     argocd.argoproj.io/sync-wave: "2"
 spec:
+  # TARGET: This policy applies to the 'erthiscan-core' Service.
   targetRefs:
     - group: ""
       kind: Service
       name: erthiscan-core
+  
+  # VALIDATION: The Gateway will verify the backend's certificate.
   validation:
     caCertificateRefs:
+      # Use a custom internal Certificate Authority (CA) stored in a ConfigMap.
       - group: ""
         kind: ConfigMap
         name: erthiscan-internal-ca
+    # The certificate must match the internal DNS name of the service.
     hostname: erthiscan-core.erthiscan.svc.cluster.local

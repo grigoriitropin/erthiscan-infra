@@ -1,9 +1,12 @@
+# BACKGROUND WORKER: Processes asynchronous tasks from the Kafka message queue.
+# It handles things like data enrichment and scoring that shouldn't block the main API.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: erthiscan-worker
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Synchronized with the core API and infrastructure.
     argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
@@ -21,12 +24,16 @@ spec:
           type: RuntimeDefault
       containers:
         - name: worker
+          # USES THE SAME IMAGE: Shared logic between API and Workers.
           image: ghcr.io/grigoriitropin/erthiscan-core
+          # ENTRY POINT: Runs the dedicated worker module instead of the API server.
           command: ["python", "-m", "app.worker"]
+          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+              
           resources:
             requests:
               cpu: 50m
@@ -34,7 +41,9 @@ spec:
             limits:
               cpu: 300m
               memory: 384Mi
+              
           env:
+            # DB CREDENTIALS: From the same CNPG secret.
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -50,11 +59,17 @@ spec:
                 secretKeyRef:
                   name: postgres-cluster-app
                   key: dbname
+            
+            # DB DRIVER: Uses 'asyncpg' for non-blocking database operations.
             - name: DB_WRITE_URL
               value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
             - name: DB_READ_URL
               value: "postgresql+asyncpg://$(DB_USER):$(DB_PASSWORD)@postgres-cluster-rw.erthiscan.svc.cluster.local:5432/$(DB_NAME)"
+            
+            # REDIS: For caching and coordination.
             - name: REDIS_URL
               value: "redis://redis.erthiscan.svc.cluster.local:6379/0"
+              
+            # KAFKA: The source of work for this deployment.
             - name: KAFKA_BOOTSTRAP
               value: "kafka.erthiscan.svc.cluster.local:9092"

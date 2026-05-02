@@ -1,26 +1,41 @@
+# GATEWAY: The primary entry point for external traffic using the Kubernetes Gateway API.
+# This resource defines the infrastructure (listeners and ports) that Traefik will provide.
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: erthiscan-gateway
   namespace: erthiscan
   annotations:
+    # SYNC WAVE 2: Synchronized with the application stack and routing rules.
     argocd.argoproj.io/sync-wave: "2"
 spec:
+  # GATEWAY CLASS: Tells the cluster to use Traefik to fulfill this Gateway.
   gatewayClassName: traefik
+  
   listeners:
+    # 1. HTTP Listener
     - name: web
+      # PORT 8000: Internal port for non-encrypted traffic (usually redirected to HTTPS).
       port: 8000
       protocol: HTTP
       allowedRoutes:
         namespaces:
+          # Security: Only allow HTTPRoutes from the same 'erthiscan' namespace.
           from: Same
+          
+    # 2. HTTPS Listener
     - name: websecure
+      # PORT 8443: Internal port for encrypted traffic.
       port: 8443
       protocol: HTTPS
       tls:
+        # MODE TERMINATE: The Gateway (Traefik) decrypts the traffic here 
+        # using the provided certificate before forwarding it to the backend.
         mode: Terminate
         certificateRefs:
+          # Reference to the Secret containing the TLS certificate (e.g. Cloudflare Origin Cert).
           - name: cloudflare-origin-cert
       allowedRoutes:
         namespaces:
+          # Security: Only allow HTTPRoutes from the same 'erthiscan' namespace.
           from: Same
