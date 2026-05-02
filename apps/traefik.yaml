@@ -34,6 +34,10 @@ spec:
             memory: 256Mi
             
         ports:
+          traefik:
+            port: 8080
+            expose:
+              default: true
           web:
             # hostPort: Binds port 80 directly to the Node's physical IP.
             hostPort: 80
