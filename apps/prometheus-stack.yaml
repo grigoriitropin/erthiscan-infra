@@ -29,7 +29,7 @@ spec:
             # Persistent storage for Grafana dashboards and users.
             enabled: true
             size: 5Gi
-            storageClassName: longhorn
+            storageClassName: longhorn-single-replica
           datasources:
             datasources.yaml:
               apiVersion: 1
@@ -48,7 +48,7 @@ spec:
               volumeClaimTemplate:
                 spec:
                   # Metrics are stored on Longhorn distributed storage.
-                  storageClassName: longhorn
+                  storageClassName: longhorn-single-replica
                   accessModes:
                     - ReadWriteOnce
                   resources:
@@ -67,7 +67,7 @@ spec:
           persistence:
             # Persistent storage for Alertmanager silencing and configuration.
             enabled: true
-            storageClassName: longhorn
+            storageClassName: longhorn-single-replica
             size: 2Gi
 
         defaultRules:

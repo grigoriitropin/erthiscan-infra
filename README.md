@@ -41,10 +41,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 ```
 
 #### Grafana Admin Password
-The default password is set to `admin` in `apps/prometheus-stack.yaml`. If a secret is used:
-```bash
-kubectl -n monitoring get secret prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d; echo
-```
+The default password is set to `admin` in `apps/prometheus-stack.yaml`. It is highly recommended to change it via the UI after the first login and store it in a secure password manager (e.g., `pass`).
 
 #### Other Panels (Longhorn, Prometheus, Traefik)
 By default, these panels do not have built-in authentication in this setup. They are secured by the fact that they are **not exposed to the internet** and are only accessible via `kubectl port-forward` (which requires valid cluster credentials).
