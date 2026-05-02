@@ -23,13 +23,18 @@ spec:
       valuesObject:
         fullnameOverride: traefik
 
-        # NATIVE API CONFIG: Recommended way to enable the dashboard and insecure access.
+        # SERVICE OPTIMIZATION: Use ClusterIP instead of LoadBalancer for a single-node cluster.
+        # This prevents ArgoCD from hanging in 'Progressing' status waiting for an external IP.
+        service:
+          enabled: true
+          type: ClusterIP
+
+        # NATIVE API CONFIG: Enables the Traefik dashboard.
         api:
           dashboard: true
           insecure: true
         
-        # RESOURCE LIMITS: Ensures Traefik doesn't consume all node resources while 
-        # guaranteeing enough CPU/RAM for high-traffic routing.
+        # RESOURCE LIMITS: Ensures Traefik doesn't consume all node resources.
         resources:
           requests:
             cpu: 100m
@@ -39,7 +44,9 @@ spec:
             memory: 256Mi
             
         ports:
+          # Dashboard/API port
           traefik:
+            port: 8080
             expose:
               default: true
           web:
