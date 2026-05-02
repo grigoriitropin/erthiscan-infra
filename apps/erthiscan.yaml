@@ -1,28 +1,42 @@
+# MAIN APPLICATION: This manifest manages the deployment of the Erthiscan project itself.
+# It synchronizes all the Kubernetes manifests found in the 'k8s/' directory of this repository.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: erthiscan
   namespace: argocd
   annotations:
+    # SYNC WAVE 1: We set this to a positive value so it starts LATER than 
+    # infrastructure components like the Database Operator (cnpg) or Storage (longhorn).
     argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
+    # Source is this same repository.
     repoURL: https://github.com/grigoriitropin/erthiscan-infra.git
     targetRevision: HEAD
+    # PATH: Points to the directory where our Kustomize or plain YAML manifests reside.
     path: k8s
+  
   destination:
     server: https://kubernetes.default.svc
+    # The dedicated namespace for the application logic and data.
     namespace: erthiscan
+  
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    
+    # RETRY STRATEGY: Crucial for applications that depend on other services.
+    # If the initial deployment fails (e.g. because the Database isn't fully ready yet),
+    # ArgoCD will retry up to 3 times with an increasing delay (backoff).
     retry:
       limit: 3
       backoff:
         duration: 30s
         factor: 2
         maxDuration: 3m
+    
     syncOptions:
       - CreateNamespace=true

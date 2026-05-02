@@ -1,25 +1,34 @@
+# CLOUD-NATIVE POSTGRES (CNPG): This application installs the CNPG Operator.
+# The operator is responsible for managing the lifecycle of PostgreSQL clusters (backup, recovery, failover).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: cnpg
   namespace: argocd
   annotations:
+    # SYNC WAVE -1: We set this to a negative value to ensure the Operator is installed
+    # BEFORE any applications that might try to create a "Cluster" resource (PostgreSQL).
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   project: default
   source:
+    # Upstream Helm chart for CloudNativePG.
     repoURL: https://cloudnative-pg.github.io/charts
     chart: cloudnative-pg
-    targetRevision: 0.27.1
+    targetRevision: 0.27.1 # Fixed version to prevent breaking changes during auto-updates.
     helm:
       releaseName: cnpg
+  
   destination:
     server: https://kubernetes.default.svc
+    # The operator itself usually lives in its own system namespace.
     namespace: cnpg-system
+  
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # SERVER-SIDE APPLY: Essential here because CNPG installs many large Custom Resource Definitions (CRDs).
       - ServerSideApply=true

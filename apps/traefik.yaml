@@ -1,21 +1,30 @@
+# TRAEFIK: The Edge Router / Ingress Controller.
+# This application handles all incoming external traffic, SSL termination, and routing.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: traefik
   namespace: argocd
   annotations:
+    # SYNC WAVE 0: Traefik is part of the core networking infrastructure.
     argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
+    # Official Traefik Helm chart.
     repoURL: https://traefik.github.io/charts
     chart: traefik
     targetRevision: 39.0.8
     helm:
       releaseName: traefik
+      # skipCrds: true — we manage Gateway API CRDs separately in another app 
+      # (gateway-api-crds.yaml) to ensure better control over versions.
       skipCrds: true
       valuesObject:
         fullnameOverride: traefik
+        
+        # RESOURCE LIMITS: Ensures Traefik doesn't consume all node resources while 
+        # guaranteeing enough CPU/RAM for high-traffic routing.
         resources:
           requests:
             cpu: 100m
@@ -23,28 +32,40 @@ spec:
           limits:
             cpu: 500m
             memory: 256Mi
+            
         ports:
           web:
+            # hostPort: Binds port 80 directly to the Node's physical IP.
             hostPort: 80
             http:
+              # AUTOMATIC REDIRECT: Force all HTTP traffic to use HTTPS (websecure).
               redirections:
                 entryPoint:
                   to: websecure
                   scheme: https
           websecure:
+            # hostPort: Binds port 443 directly to the Node's physical IP.
             hostPort: 443
+            
         providers:
+          # KUBERNETES GATEWAY API: Enables support for modern Gateway, HTTPRoute, 
+          # and TLSRoute resources instead of standard Ingress.
           kubernetesGateway:
             enabled: true
+            
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik
+    
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      
+    # PRIVILEGED ACCESS: Required because Traefik uses 'hostPort' to bind to 
+    # restricted system ports (80/443) on the node's network interface.
     managedNamespaceMetadata:
       labels:
         pod-security.kubernetes.io/enforce: privileged

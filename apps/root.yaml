@@ -1,3 +1,5 @@
+# Master Application for the "App of Apps" pattern.
+# This manifest manages all other applications in the 'apps/' directory.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,16 +8,22 @@ metadata:
 spec:
   project: default
   source:
+    # Source repository for infrastructure manifests.
     repoURL: https://github.com/grigoriitropin/erthiscan-infra.git
     targetRevision: HEAD
+    # Monitor the 'apps' directory for other Application manifests.
     path: apps
     directory:
+      # Recurse: false means it only looks at the top level of the 'apps' folder.
       recurse: false
+      # Exclude root.yaml to prevent the application from managing itself recursively.
       exclude: root.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
     automated:
+      # Automatically remove resources that are no longer present in Git.
       prune: true
+      # Automatically fix drift if resources are modified manually in the cluster.
       selfHeal: true

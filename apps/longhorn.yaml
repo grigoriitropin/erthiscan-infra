@@ -1,24 +1,33 @@
+# LONGHORN: Distributed block storage for Kubernetes.
+# This application installs the actual Longhorn storage engine and its control plane.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: longhorn
   namespace: argocd
   annotations:
+    # SYNC WAVE -1: Storage must be initialized BEFORE stateful applications 
+    # and storage classes are fully utilized.
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   project: default
   source:
+    # Official Longhorn Helm chart.
     repoURL: https://charts.longhorn.io
     chart: longhorn
     targetRevision: 1.11.1
     helm:
       releaseName: longhorn
+      # valuesObject: Inline Helm values.
       valuesObject:
         preUpgradeChecker:
+          # Disabling job-based upgrade checker for a more streamlined GitOps flow.
           jobEnabled: false
+  
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
+  
   syncPolicy:
     automated:
       prune: true
@@ -26,6 +35,10 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+    
+    # POD SECURITY STANDARDS: Very important for Longhorn.
+    # Longhorn components need 'privileged' access to the host nodes to manage block devices and mounts.
+    # These labels tell Kubernetes to allow privileged pods in the 'longhorn-system' namespace.
     managedNamespaceMetadata:
       labels:
         pod-security.kubernetes.io/enforce: privileged

@@ -1,25 +1,32 @@
+# OBSERVABILITY STACK: Installs Prometheus, Grafana, and Alertmanager.
+# This stack provides monitoring, alerting, and visualization for the entire cluster.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: prometheus-stack
   namespace: argocd
   annotations:
+    # SYNC WAVE 0: Monitoring can be deployed alongside other baseline infrastructure.
     argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
+    # Official Prometheus Community Helm charts.
     repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 84.x.x
+    targetRevision: 84.x.x # Tracking v84 major version for stability.
     chart: kube-prometheus-stack
     helm:
+      # values: YAML block for Helm chart configuration.
       values: |
         grafana:
           enabled: true
+          # CAUTION: Default admin password. Should be managed via Secrets in production.
           adminPassword: admin
           service:
             type: ClusterIP
             port: 3000
           persistence:
+            # Persistent storage for Grafana dashboards and users.
             enabled: true
             size: 5Gi
             storageClassName: longhorn
@@ -31,19 +38,25 @@ spec:
                   type: prometheus
                   url: http://prometheus-operated.monitoring:9090
                   access: proxy
+        
         prometheus:
           prometheusSpec:
+            # RETENTION: How long to keep metrics and the maximum size on disk.
             retention: 14d
             retentionSize: 20GB
             storageSpec:
               volumeClaimTemplate:
                 spec:
+                  # Metrics are stored on Longhorn distributed storage.
                   storageClassName: longhorn
                   accessModes:
                     - ReadWriteOnce
                   resources:
                     requests:
                       storage: 20Gi
+            
+            # These selectors ensure Prometheus picks up all ServiceMonitors/PodMonitors 
+            # regardless of labels, making discovery easier across namespaces.
             podMonitorSelectorNilUsesHelmValues: false
             serviceMonitorSelectorNilUsesHelmValues: false
             podMonitorNamespaceSelector: {}
@@ -52,16 +65,20 @@ spec:
         alertmanager:
           enabled: true
           persistence:
+            # Persistent storage for Alertmanager silencing and configuration.
             enabled: true
             storageClassName: longhorn
             size: 2Gi
 
         defaultRules:
+          # Enable standard Kubernetes and Node alerts.
           create: true
 
   destination:
     server: https://kubernetes.default.svc
+    # Observation tools are isolated in the 'monitoring' namespace.
     namespace: monitoring
+  
   syncPolicy:
     automated:
       prune: true
@@ -75,6 +92,10 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+    
+    # PRIVILEGED ACCESS: Required for 'node-exporter'.
+    # Monitoring components need to read host-level metrics (CPU, disk, network)
+    # which requires elevated permissions on the nodes.
     managedNamespaceMetadata:
       labels:
         pod-security.kubernetes.io/enforce: privileged

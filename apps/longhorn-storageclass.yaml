@@ -1,19 +1,28 @@
+# LONGHORN STORAGE CLASSES: This application manages our custom storage definitions.
+# It ensures that Longhorn-specific StorageClasses (like 'longhorn-single-replica') are available in the cluster.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: longhorn-storageclass
   namespace: argocd
   annotations:
+    # SYNC WAVE 0: Storage classes should be defined early so that stateful 
+    # applications (like PostgreSQL) can find them when they start.
     argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
+    # Source is our Git repository.
     repoURL: https://github.com/grigoriitropin/erthiscan-infra.git
     targetRevision: HEAD
+    # PATH: Points to the 'longhorn/' directory which contains our StorageClass manifests.
     path: longhorn
+  
   destination:
     server: https://kubernetes.default.svc
+    # StorageClasses are cluster-scoped, but we deploy the manifest into the longhorn-system context.
     namespace: longhorn-system
+  
   syncPolicy:
     automated:
       prune: true

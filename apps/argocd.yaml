@@ -1,30 +1,48 @@
+# SELF-MANAGEMENT: This manifest makes ArgoCD "recursive" — it manages its own installation.
+# Any changes to argocd-values.yaml or this file will be automatically applied by ArgoCD to itself.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: argocd
   namespace: argocd
   annotations:
+    # SYNC WAVES: Defines the order of deployment. 
+    # "0" is the baseline. Lower numbers run first, higher numbers wait for previous waves to be healthy.
     argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
+  # MULTIPLE SOURCES: ArgoCD 2.6+ allows combining multiple repositories.
+  # Here we combine the official "upstream" Helm chart with our "local" Git configuration.
   sources:
+    # 1. The "Base": Official Helm Chart from the ArgoProj team.
     - repoURL: https://argoproj.github.io/argo-helm
       chart: argo-cd
-      targetRevision: 9.5.0
+      targetRevision: 9.5.0 # Specific version of the chart to ensure stability.
       helm:
         releaseName: argo-cd
         valueFiles:
+          # MAGIC LINK: The '$values' prefix points to the ROOT of the source defined below with 'ref: values'.
+          # This allows us to keep our secrets and specific settings in Git while using the official chart.
           - $values/bootstrap/argocd-values.yaml
+    
+    # 2. The "Config": Our Git repository that holds our specific settings.
     - repoURL: https://github.com/grigoriitropin/erthiscan-infra.git
       targetRevision: HEAD
+      # REF: This alias 'values' is what allows the Helm source above to find this repository.
       ref: values
+      
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+  
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true      # Delete resources from cluster if removed from Git.
+      selfHeal: true   # If someone manually changes settings in K8s, ArgoCD will revert them to Git state.
     syncOptions:
+      # SERVER-SIDE APPLY: Critical for ArgoCD. 
+      # Standard 'kubectl apply' stores the entire config in an annotation, which has a 256KB limit.
+      # Large resources (like ArgoCD CRDs) often exceed this. Server-Side Apply fixes this by 
+      # letting the Kubernetes API server handle the merge logic directly.
       - ServerSideApply=true
       - CreateNamespace=true
