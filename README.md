@@ -28,10 +28,10 @@ The infrastructure provides several web-based management panels. Use `kubectl po
 | Panel | Namespace | Command | URL |
 | :--- | :--- | :--- | :--- |
 | **ArgoCD** | `argocd` | `kubectl port-forward svc/argo-cd-argocd-server -n argocd 8080:443` | [https://localhost:8080](https://localhost:8080) |
-| **Grafana** | `monitoring` | `kubectl port-forward svc/prometheus-stack-grafana -n monitoring 3000:80` | [http://localhost:3000](http://localhost:3000) |
+| **Grafana** | `monitoring` | `kubectl port-forward svc/prometheus-stack-grafana -n monitoring 3000:3000` | [http://localhost:3000](http://localhost:3000) |
 | **Longhorn** | `longhorn-system` | `kubectl port-forward svc/longhorn-frontend -n longhorn-system 8081:80` | [http://localhost:8081](http://localhost:8081) |
-| **Prometheus** | `monitoring` | `kubectl port-forward svc/prometheus-prometheus-stack-kube-prom-prometheus -n monitoring 9090:9090` | [http://localhost:9090](http://localhost:9090) |
-| **Traefik** | `traefik` | `kubectl port-forward svc/traefik -n traefik 9000:9000` | [http://localhost:9000/dashboard/](http://localhost:9000/dashboard/) |
+| **Prometheus** | `monitoring` | `kubectl port-forward svc/prometheus-stack-kube-prom-prometheus -n monitoring 9090:9090` | [http://localhost:9090](http://localhost:9090) |
+| **Traefik** | `traefik` | `kubectl port-forward svc/traefik -n traefik 9000:80` | [http://localhost:9000/dashboard/](http://localhost:9000/dashboard/) |
 
 ### Retrieving Passwords
 
