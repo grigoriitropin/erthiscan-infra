@@ -7,25 +7,25 @@ kind: Kustomization
 # Note: Backup schedule is currently commented out in the source.
 # - 08-postgres-scheduled-backup.yaml
 resources:
-  - 00-erthiscan-namespace.yaml
-  - 01-postgres-cluster.yaml
-  - 02-migration-job.yaml
-  - 03-erthiscan-core.yaml
-  - 04-service.yaml
-  - 04a-backend-tls-policy.yaml
-  - 05-gateway.yaml
-  - 06-httproute.yaml
-  - 07-open-facts-import-cronjob.yaml
-  - 08-pod-monitor.yaml
-  - 09-redis.yaml
-  - 10-kafka.yaml
-  - 11-worker.yaml
+- 00-erthiscan-namespace.yaml
+- 01-postgres-cluster.yaml
+- 02-migration-job.yaml
+- 03-erthiscan-core.yaml
+- 04-service.yaml
+- 04a-backend-tls-policy.yaml
+- 05-gateway.yaml
+- 06-httproute.yaml
+- 07-open-facts-import-cronjob.yaml
+- 08-pod-monitor.yaml
+- 09-redis.yaml
+- 10-kafka.yaml
+- 11-worker.yaml
 
 # IMAGES: Centralized image management.
 # This ensures that all components (API, Worker, Migration Job) 
 # use the exact same version of the application code.
-images:
-  - name: ghcr.io/grigoriitropin/erthiscan-core
-    newName: ghcr.io/grigoriitropin/erthiscan-core
     # TAG: Points to a specific Git commit for reproducible deployments.
-    newTag: b34fe8ba207e65ded107cff8c7704cfdd8410b9b
+images:
+- name: ghcr.io/grigoriitropin/erthiscan-core
+  newName: ghcr.io/grigoriitropin/erthiscan-core
+  newTag: cae52b38a5c53b995f19306fc59aa4b04dbba79b
