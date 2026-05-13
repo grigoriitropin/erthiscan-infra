@@ -23,11 +23,11 @@ spec:
       valuesObject:
         fullnameOverride: traefik
 
-        # SERVICE OPTIMIZATION: Use ClusterIP instead of LoadBalancer for a single-node cluster.
-        # This prevents ArgoCD from hanging in 'Progressing' status waiting for an external IP.
+        # SERVICE: hostPort bindings handle external traffic directly on the node.
+        # The chart creates a LoadBalancer service internally — external IP is irrelevant here.
         service:
           enabled: true
-          type: ClusterIP
+          type: LoadBalancer
 
         # NATIVE API CONFIG: Enables the Traefik dashboard.
         api:
