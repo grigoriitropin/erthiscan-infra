@@ -15,7 +15,7 @@ spec:
     # Upstream Helm chart for CloudNativePG.
     repoURL: https://cloudnative-pg.github.io/charts
     chart: cloudnative-pg
-    targetRevision: 0.27.1 # Fixed version to prevent breaking changes during auto-updates.
+    targetRevision: 0.28.2 # Fixed version to prevent breaking changes during auto-updates.
     helm:
       releaseName: cnpg
   

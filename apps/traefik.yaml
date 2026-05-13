@@ -14,7 +14,7 @@ spec:
     # Official Traefik Helm chart.
     repoURL: https://traefik.github.io/charts
     chart: traefik
-    targetRevision: 39.0.8
+    targetRevision: 40.2.0
     helm:
       releaseName: traefik
       # skipCrds: true — we manage Gateway API CRDs separately in another app 

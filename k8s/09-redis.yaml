@@ -24,7 +24,7 @@ spec:
       containers:
         - name: redis
           # Using a lightweight Alpine-based image.
-          image: redis:8.6-alpine
+          image: redis:8.6.3-alpine
           # MEMORY MANAGEMENT: 
           # --maxmemory: Limits Redis memory usage to 128MB.
           # --maxmemory-policy allkeys-lru: Tells Redis to delete the Least Recently Used (LRU) keys 
