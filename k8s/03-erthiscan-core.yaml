@@ -42,7 +42,7 @@ spec:
               memory: 256Mi
             limits:
               cpu: 500m
-              memory: 384Mi
+              memory: 512Mi
           
           # READINESS PROBE: Determines if the pod is ready to serve traffic.
           # Uses /db-health to ensure the database connection is established.
